@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+   
+<meta name="google" content="notranslate">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Eternal Love - Letter Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@300;500;700&family=Playfair+Display:italic,wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        /* --- Mobile Optimization for iPhone 12 Pro & Modern Phones --- */
+        @media screen and (max-width: 430px) {
+            #page4 {
+                width: 92% !important;
+                padding: 25px 20px !important;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .page4-container {
+                gap: 15px;
+            }
+
+            .page-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .page-content {
+                flex-direction: column !important; /* Stack elements vertically */
+                gap: 20px !important;
+            }
+
+            .polaroid {
+                width: 220px !important; /* Adjusted for smaller screens */
+                padding: 10px;
+                padding-bottom: 35px;
+                transform: rotate(-1deg);
+            }
+
+            .polaroid img {
+                height: 240px !important;
+            }
+
+            .polaroid-caption {
+                font-size: 1.2rem;
+            }
+
+            .envelope-column {
+                width: 100%;
+                flex-direction: row !important; /* Side by side envelopes */
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .pixel-envelope-group {
+                padding: 12px !important;
+                flex: 1;
+                max-width: 140px;
+            }
+
+            .pixel-envelope {
+                width: 50px !important;
+            }
+
+            .envelope-text {
+                font-size: 1rem !important;
+            }
+
+            #letter-display-content {
+                width: 90%;
+                padding: 30px 20px;
+            }
+
+            #letter-modal-text {
+                font-size: 1.1rem !important;
+            }
+            
+            .decoration-emoji {
+                font-size: 30px !important;
+            }
+        }
+        :root {
+            --primary: #ff85a1;
+            --secondary: #4a1c40;
+            --gold: #fccb90;
+            --accent: #d597ce;
+            --glass: rgba(255, 255, 255, 0.08);
+            --border: rgba(255, 255, 255, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #4a1c40);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            touch-action: none;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #particles-js { position: absolute; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .page {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 90%;
+            max-width: 420px;
+            padding: 50px 35px;
+            border-radius: 50px;
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        .active { display: flex; animation: premiumFade 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+        @keyframes premiumFade {
+            from { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(10px); }
+            to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.2rem;
+            background: linear-gradient(to right, #fff, var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+
+        .btn-glow {
+            padding: 18px 45px;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #4a1c40;
+            background: linear-gradient(45deg, var(--gold), #d597ce);
+            border: none;
+            border-radius: 100px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(213, 151, 206, 0.3);
+            letter-spacing: 4px;
+            margin-top: 35px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .btn-glow:active { transform: scale(0.95); }
+
+        .btn-return {
+            padding: 12px 30px;
+            font-size: 0.8rem;
+            background: rgba(255,255,255,0.1);
+            color: var(--gold);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        #game-ui {
+            position: absolute;
+            top: calc(env(safe-area-inset-top) + 60px);
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 0 20px;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 22px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .loader-wrapper {
+            width: 100%; height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px; margin: 40px 0;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .loader-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--gold), var(--primary));
+            box-shadow: 0 0 15px var(--gold);
+        }
+
+        .page4-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .page-header {
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .page-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            letter-spacing: 2px;
+        }
+
+        .page-content {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+            flex-grow: 1;
+            padding: 10px;
+        }
+
+        .polaroid {
+            background: white;
+            width: 280px; 
+            padding: 12px;
+            padding-bottom: 45px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            border-radius: 4px;
+            position: relative;
+            transform: rotate(-2deg);
+            z-index: 5;
+            transition: transform 0.5s ease;
+        }
+        
+        .polaroid:hover {
+            transform: rotate(0deg) scale(1.05);
+        }
+
+        .polaroid img {
+            width: 100%;
+            height: 320px; 
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        .polaroid-caption {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.5rem;
+            color: #1a1a1a;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .decoration-emoji {
+            position: absolute;
+            z-index: 6;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        .envelope-column {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            flex: 1;
+        }
+
+        .pixel-envelope-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .pixel-envelope-group:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--gold);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .pixel-envelope {
+            width: 85px;
+            height: auto;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        }
+
+        .envelope-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.3rem;
+            color: var(--gold);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        #letter-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        #letter-display-content {
+            background: #fff9f0;
+            color: #2b2d42;
+            padding: 40px 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 85%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            border: 8px double #e0c3a5;
+        }
+
+        #close-modal {
+            position: sticky;
+            top: -20px;
+            float: right;
+            font-size: 2rem;
+            color: #888;
+            cursor: pointer;
+            z-index: 101;
+        }
+
+        #letter-modal-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.4rem;
+            line-height: 1.6;
+            color: #4a1c40;
+            text-align: left;
+            white-space: pre-line;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Background Music -->
+    <audio id="bgMusic" loop>
+        <source src="Ga.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="particles-js"></div>
+
+    <div class="container">
+        <!-- Page 1 -->
+        <div id="page1" class="page active">
+            <h1>Our Story</h1>
+            <p style="font-size: 1rem; line-height: 1.8; opacity: 0.8;">
+                🎀ဘာလေးလုပ်ထားတာလဲသိဖို့..🎀<br>
+                ချစ်စရာ ယုန်လေးနဲ့အတူ <br> <span style="color: var(--gold); font-weight: 600;">အသဲ ၁၅ ပြည့်အောင်</span> ဖမ်းပေးပါ
+            </p>
+            <button class="btn-glow" onclick="initGame()">Start Journey</button>
+        </div>
+
+        <!-- Page 2: Game -->
+        <div id="page2" class="page" style="background: transparent; border: none; backdrop-filter: none; box-shadow: none;">
+            <div id="game-ui">
+                <div class="stat-card">❤️ <span id="score">0</span> / 15</div>
+                <div class="stat-card">LVL: <span id="level">1</span></div>
+            </div>
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <!-- Page 3: Loading -->
+        <div id="page3" class="page">
+            <h2 style="font-family: 'Playfair Display'; font-size: 2.2rem; color: var(--gold);">Capturing Moments</h2>
+            <div class="loader-wrapper">
+                <div id="progress" class="loader-fill"></div>
+            </div>
+            <p id="loading-text" style="font-style: italic; opacity: 0.6;">Gathering all the love for you...</p>
+        </div>
+
+        <!-- Page 4: Surprise Page -->
+        <div id="page4" class="page" style="width: 95%; max-width: 750px; padding: 40px; border-radius: 30px;">
+            <div class="page4-container">
+                <div class="page-header">
+                    <h2>Eternal Love</h2>
+                </div>
+
+                <div class="page-content">
+                    <div class="polaroid">
+                        <img src="Rabbit.jpg" alt="Memory">
+                        <span class="decoration-emoji" style="top: -20px; right: -20px; font-size: 45px;">🎀</span>
+                        <span class="decoration-emoji" style="bottom: 30px; left: -15px; font-size: 35px;">🌸</span>
+                        <div class="polaroid-caption">my valentine <3</div>
+                    </div>
+
+                    <div class="envelope-column">
+                        <div class="pixel-envelope-group" onclick="selectLetter(1)">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3062/3062634.png" alt="Letter" class="pixel-envelope">
+                            <div class="envelope-text">Letter For you</div>
+                        </div>
+                        <div class="pixel-envelope-group" onclick="selectLetter(2)">
+                            <img src="icon.png" alt="One More" class="pixel-envelope">
+                            <div class="envelope-text">One more...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page-footer">
+                    <button class="btn-return" onclick="resetToStart()">← Return to Start</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="letter-modal" onclick="closeLetter()">
+        <div id="letter-display-content" onclick="event.stopPropagation()">
+            <span id="close-modal" onclick="closeLetter()">×</span>
+            <p id="letter-modal-text"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 25 },
+                "color": { "value": "#fccb90" },
+                "shape": { "type": "heart" },
+                "opacity": { "value": 0.2 },
+                "size": { "value": 3 },
+                "move": { "enable": true, "speed": 1, "direction": "top" }
+            }
+        });
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const music = document.getElementById('bgMusic');
+        
+        let score = 0, level = 1, gameActive = false, hearts = [], caughtHearts = [];
+        let basket = { x: 0, targetX: 0, y: 0, width: 90, height: 60, tilt: 0, bounce: 0, velocityX: 0, happyTimer: 0 };
+        let runAnimFrame = 0;
+        let clouds = [];
+
+        function createClouds() {
+            clouds = [];
+            for(let i = 0; i < 5; i++) {
+                clouds.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * 150 + 50,
+                    speed: 0.2 + Math.random() * 0.3,
+                    size: 40 + Math.random() * 40,
+                    opacity: 0.1 + Math.random() * 0.2
+                });
+            }
+        }
+
+        function drawClouds() {
+            clouds.forEach(c => {
+                ctx.save();
+                ctx.fillStyle = `rgba(255, 255, 255, ${c.opacity})`;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.size, 0, Math.PI * 2);
+                ctx.arc(c.x + c.size * 0.6, c.y - c.size * 0.2, c.size * 0.8, 0, Math.PI * 2);
+                ctx.arc(c.x + c.size * 1.2, c.y, c.size * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                c.x += c.speed;
+                if(c.x > window.innerWidth + 100) c.x = -150;
+            });
+        }
+
+        function initGame() {
+            // Music Play
+            music.play().catch(e => console.log("Audio play failed: ", e));
+            
+            document.getElementById('page1').classList.remove('active');
+            document.getElementById('page2').classList.add('active');
+            
+            // Reset game variables
+            score = 0; level = 1; hearts = []; caughtHearts = [];
+            document.getElementById('score').innerText = score;
+            document.getElementById('level').innerText = level;
+            
+            resize();
+            createClouds();
+            basket.x = window.innerWidth/2;
+            basket.targetX = basket.x;
+            gameActive = true;
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resetToStart() {
+            document.getElementById('page4').classList.remove('active');
+            document.getElementById('page1').classList.add('active');
+            document.body.style.overflowY = "hidden";
+            document.body.style.touchAction = "none";
+        }
+
+        function resize() {
+            const ratio = window.devicePixelRatio || 1;
+            canvas.width = window.innerWidth * ratio;
+            canvas.height = window.innerHeight * ratio;
+            canvas.style.width = window.innerWidth + 'px';
+            canvas.style.height = window.innerHeight + 'px';
+            ctx.scale(ratio, ratio);
+            basket.y = window.innerHeight - 180;
+        }
+        window.addEventListener('resize', resize);
+
+        const handleMove = (e) => {
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            basket.targetX = x;
+        };
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchstart', handleMove);
+        window.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e); }, {passive: false});
+
+        function drawPath() {
+            const pathY = basket.y + 90;
+            const gradient = ctx.createLinearGradient(0, pathY, 0, pathY + 60);
+            gradient.addColorStop(0, 'rgba(46, 125, 50, 0.4)'); 
+            gradient.addColorStop(1, 'rgba(27, 94, 32, 0)'); 
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.ellipse(window.innerWidth/2, pathY + 20, window.innerWidth * 0.8, 40, 0, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function drawCharacterAndBasket(x, y, w, h) {
+            ctx.save();
+            let speed = Math.abs(basket.velocityX);
+            let direction = Math.sign(basket.velocityX) || 1;
+            let runFactor = Math.min(speed / 4, 1); 
+            let cycle = runAnimFrame;
+            let bodyBob = Math.abs(Math.sin(cycle)) * 7 * runFactor;
+            let leanAngle = (basket.velocityX * 0.015);
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.beginPath();
+            ctx.ellipse(x, y + h + 10, 30 + bodyBob, 8, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.translate(x, y + h + basket.bounce);
+            ctx.rotate(leanAngle);
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.strokeStyle = '#FFD1DC';
+            ctx.lineWidth = 2;
+            let legL = Math.sin(cycle) * 12 * runFactor;
+            let legR = Math.sin(cycle + Math.PI) * 12 * runFactor;
+            let legLiftL = Math.max(0, Math.cos(cycle)) * 8 * runFactor;
+            let legLiftR = Math.max(0, Math.cos(cycle + Math.PI)) * 8 * runFactor;
+
+            ctx.beginPath(); ctx.ellipse(-12 + legL, -5 - legLiftL, 7, 11, direction * 0.1, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.ellipse(12 + legR, -5 - legLiftR, 7, 11, direction * 0.1, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+
+            ctx.beginPath(); ctx.arc(22 - (leanAngle * 10), -25 - bodyBob, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(-24, -10 - bodyBob); ctx.bezierCurveTo(-33, -10, -33, -52, 0, -52 - bodyBob); ctx.bezierCurveTo(33, -52, 33, -10, 24, -10 - bodyBob); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+            ctx.lineWidth = 9; ctx.lineCap = 'round'; ctx.strokeStyle = '#FFFFFF';
+            let armOsc = Math.sin(cycle) * 4 * runFactor;
+            ctx.beginPath(); ctx.moveTo(-18, -35 - bodyBob); ctx.lineTo(-40 + armOsc, -24); ctx.stroke();
+
+            ctx.save();
+            ctx.translate(0, -68 - bodyBob);
+            ctx.fillStyle = '#FFFFFF';
+            let earDrift = -basket.velocityX * 0.04;
+            [-1, 1].forEach(side => {
+                ctx.save();
+                ctx.translate(side * 12, -15);
+                ctx.rotate((side * 0.2 + earDrift) * Math.PI);
+                ctx.beginPath(); ctx.ellipse(0, -15, 8, 24, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#FFD1DC';
+                ctx.beginPath(); ctx.ellipse(0, -15, 4, 16, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+            });
+
+            ctx.beginPath(); ctx.arc(0, 5, 27, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            
+            if (basket.happyTimer > 0) {
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.arc(-11, 6, 5, Math.PI, 0); ctx.stroke();
+                ctx.beginPath(); ctx.arc(11, 6, 5, Math.PI, 0); ctx.stroke();
+                ctx.fillStyle = 'rgba(255, 133, 161, 0.4)';
+                ctx.beginPath(); ctx.arc(-16, 12, 4, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(16, 12, 4, 0, Math.PI * 2); ctx.fill();
+            } else {
+                ctx.fillStyle = '#333';
+                let blink = Math.sin(Date.now()/500) > 0.9 ? 0.1 : 1;
+                ctx.beginPath(); ctx.ellipse(-11, 4, 3, 4.5 * blink, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(11, 4, 3, 4.5 * blink, 0, 0, Math.PI * 2); ctx.fill();
+            }
+            
+            ctx.fillStyle = '#FF85A1'; ctx.beginPath(); ctx.arc(0, 8, 2.2, 0, Math.PI * 2); ctx.fill();
+            ctx.restore();
+
+            ctx.save();
+            ctx.translate(-45 + armOsc, -26);
+            ctx.rotate(-leanAngle);
+            ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.arc(0, -20, 20, Math.PI, 0); ctx.stroke();
+            let grd = ctx.createLinearGradient(0, -15, 0, 15);
+            grd.addColorStop(0, '#a1887f'); grd.addColorStop(1, '#6d4c41');
+            ctx.fillStyle = grd;
+            ctx.beginPath(); ctx.roundRect(-26, -15, 52, 35, [4, 4, 16, 16]); ctx.fill();
+            caughtHearts.forEach(h => {
+                ctx.font = `${h.s}px sans-serif`;
+                ctx.fillText('🌸', h.x, h.y);
+            });
+            ctx.restore();
+            ctx.restore();
+        }
+
+        function gameLoop() {
+            if(!gameActive) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawClouds(); 
+            drawPath();
+            let oldX = basket.x;
+            let dx = basket.targetX - basket.x;
+            basket.x += dx * 0.12; 
+            basket.velocityX = basket.x - oldX;
+            basket.bounce *= 0.82;
+            if(basket.happyTimer > 0) basket.happyTimer--;
+            if (Math.abs(basket.velocityX) > 0.5) {
+                runAnimFrame += Math.min(Math.abs(basket.velocityX) * 0.07, 0.3);
+            } else {
+                runAnimFrame *= 0.85;
+            }
+            drawCharacterAndBasket(basket.x, basket.y, basket.width, basket.height);
+            if(Math.random() < 0.035) {
+                hearts.push({
+                    x: Math.random() * (window.innerWidth - 60) + 30,
+                    y: -50,
+                    speed: 2.8 + (level * 0.35),
+                    size: 28 + Math.random() * 8,
+                    type: Math.random() > 0.3 ? '🌸' : '❤️'
+                });
+            }
+            for(let i = hearts.length - 1; i >= 0; i--) {
+                let h = hearts[i];
+                h.y += h.speed;
+                let curX = h.x + Math.sin(h.y / 45) * 22;
+                ctx.save();
+                ctx.font = `bold ${h.size}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.filter = 'blur(1.5px)'; 
+                ctx.fillText(h.type, curX, h.y);
+                ctx.restore();
+                const basketLeft = basket.x - 70; 
+                const basketRight = basket.x - 15;
+                if(h.y > basket.y - 25 && h.y < basket.y + 45 && curX > basketLeft && curX < basketRight) {
+                    hearts.splice(i, 1);
+                    score++;
+                    basket.bounce = 10;
+                    basket.happyTimer = 45;
+                    if(caughtHearts.length < 18) {
+                        caughtHearts.push({ x: Math.random()*32-16, y: 10-(caughtHearts.length*3), s: 14+Math.random()*6 });
+                    }
+                    document.getElementById('score').innerText = score;
+                    if(score % 5 === 0) level++;
+                    document.getElementById('level').innerText = level;
+                    if(score >= 15) {
+                        gameActive = false;
+                        setTimeout(startLoading, 500);
+                    }
+                } else if (h.y > window.innerHeight) { hearts.splice(i, 1); }
+            }
+            requestAnimationFrame(gameLoop);
+        }
+
+        function startLoading() {
+            document.getElementById('page2').classList.remove('active');
+            document.getElementById('page3').classList.add('active');
+            let p = 0;
+            const intv = setInterval(() => {
+                p += 2;
+                document.getElementById('progress').style.width = p + '%';
+                if(p >= 100) {
+                    clearInterval(intv);
+                    setTimeout(() => {
+                        document.getElementById('page3').classList.remove('active');
+                        document.getElementById('page4').classList.add('active');
+                        document.body.style.overflowY = "auto";
+                        document.body.style.touchAction = "auto";
+                    }, 600);
+                }
+            }, 40);
+        }
+
+        const letterData = {
+            1: `ချစ်ရပါသော ပူတူး လေး... ❤️\n\nခြင်းတောင်းလေးထဲမှာ အသဲတွေပြည့်သွားသလိုပဲ၊ ကိုယ့်နှလုံးသားထဲမှာလည်း ပူတူးနဲ့ပတ်သက်တဲ့ အမှတ်တရတွေ အမြဲအပြည့်ပါပဲ။ \n\nဒီနေ့အထိ တူတူဖြတ်သန်းခဲ့တဲ့ ရက်ပေါင်းတွေတိုင်းက ကိုယ့်အတွက်တော့ တန်ဖိုးဖြတ်လို့မရတဲ့ လက်ဆောင်တွေပါ။ Rabbitရဲ့ အပြုံးလေးတွေက ကိုကို့အတွက် ခွန်အားတွေဖြစ်စေသလို၊ Rabbitရဲ့ရှိနေခြင်းကပဲ ကိုယ့်ကမ္ဘာလေးကို ပိုပြီးလှပစေတာပါ။`,
+            2: `Dear Rabbit... 🌸\n\nဒီ website လေးက ကိုယ့်ရဲ့ နှလုံးသားထဲကနေ Rabbitအတွက် သီးသန့်ဖန်တီးထားတဲ့ နေရာလေးတစ်ခုပါ။ ပူတူးပျော်နေတာကို မြင်ရဖို့က ကိုကို့အတွက် အကြီးမားဆုံး ဆုလာဘ်ပါပဲ။\n\n"Love You 4000" ထက်မကတဲ့ အချစ်တွေနဲ့ မင်းကို ထာဝရချစ်နေမှာပါ။ မင်းက ကိုယ့်ဘဝရဲ့ အလှပဆုံး အစိတ်အပိုင်းလေးမို့ အမြဲတမ်း တယုတယနဲ့ စောင့်ရှောက်သွားမှာပါ။`
+        };
+
+        function selectLetter(id) {
+            const modal = document.getElementById('letter-modal');
+            const textElement = document.getElementById('letter-modal-text');
+            if (letterData[id]) {
+                textElement.innerText = letterData[id];
+                modal.style.display = 'flex';
+                document.getElementById('letter-display-content').scrollTop = 0;
+                confetti({ 
+                    particleCount: 150, spread: 70, origin: { y: 0.7 }, 
+                    colors: ['#fccb90', '#ff85a1', '#ffffff'] 
+                });
+            }
+        }
+
+        function closeLetter() {
+            document.getElementById('letter-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
